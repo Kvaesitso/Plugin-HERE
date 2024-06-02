@@ -1,6 +1,8 @@
 package de.mm20.launcher2.plugin.here
 
 import de.mm20.launcher2.plugin.here.api.HDiscover
+import de.mm20.launcher2.plugin.here.api.HDiscoverItem
+import de.mm20.launcher2.plugin.here.api.HLocation
 import de.mm20.launcher2.plugin.here.api.HIn
 import de.mm20.launcher2.plugin.here.api.HPosition
 import de.mm20.launcher2.plugin.here.api.HTransitDepartures
@@ -71,6 +73,21 @@ class HereApiClient(
                 parameter("apiKey", apiKey)
                 parameter("at", at.toString())
                 parameter("q", q)
+                if (lang != null) parameter("lang", lang)
+            }
+        }.body()
+    }
+
+    suspend fun lookup(
+        id: String,
+        lang: String?,
+    ): HDiscoverItem {
+        return client.get {
+            url {
+                host = "lookup.search.hereapi.com"
+                path("v1", "lookup")
+                parameter("apiKey", apiKey)
+                parameter("id", id)
                 if (lang != null) parameter("lang", lang)
             }
         }.body()

@@ -1,10 +1,10 @@
 package de.mm20.launcher2.plugin.here
 
-import android.util.Log
 import de.mm20.launcher2.plugin.config.QueryPluginConfig
 import de.mm20.launcher2.plugin.config.StorageStrategy
 import de.mm20.launcher2.plugin.here.api.HAddress
 import de.mm20.launcher2.plugin.here.api.HDiscoverItem
+import de.mm20.launcher2.plugin.here.api.HLocation
 import de.mm20.launcher2.plugin.here.api.HPosition
 import de.mm20.launcher2.sdk.base.GetParams
 import de.mm20.launcher2.sdk.base.SearchParams
@@ -26,7 +26,7 @@ class HerePlacesProvider : LocationProvider(
     }
 
     override suspend fun get(id: String, params: GetParams): Location? {
-        return null
+        return apiClient.lookup(id, lang = params.lang).toLocation()
     }
 
     override suspend fun search(query: LocationQuery, params: SearchParams): List<Location> {
