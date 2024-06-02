@@ -23,7 +23,7 @@
             android:value="MM2-0" />
         <meta-data
             android:name="de.mm20.launcher2.plugin.description"
-            android:value="@string/plugin_departures_description" />
+            android:value="@string/plugin_package_description" />
         <meta-data
             android:name="de.mm20.launcher2.plugin.icon"
             android:resource="@drawable/ic_here" />

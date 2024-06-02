@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Kvaesitso HERE Plugin</string>
     <string name="plugin_package_name">HERE integration</string>
+    <string name="plugin_package_description">Places, departure times, and weather data from HERE</string>
     <string name="plugin_departures_name">HERE departure times</string>
-    <string name="plugin_departures_description">Places, departure times, and weather data from HERE</string>
+    <string name="plugin_departures_description">Search HERE for public transport data</string>
     <string name="plugin_places_name">HERE places</string>
-    <string name="plugin_places_description">Search for places on HERE</string>
+    <string name="plugin_places_description">Search HERE for places in the local area</string>
 </resources>
