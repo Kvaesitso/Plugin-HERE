@@ -6,4 +6,6 @@
     <string name="plugin_departures_description">Search HERE for public transport data</string>
     <string name="plugin_places_name">HERE places</string>
     <string name="plugin_places_description">Search HERE for places in the local area</string>
+    <string name="plugin_weather_name">HERE weather</string>
+    <string name="plugin_weather_description">Weather data from HERE</string>
 </resources>

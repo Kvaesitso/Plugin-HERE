@@ -7,6 +7,7 @@ import de.mm20.launcher2.plugin.here.api.HIn
 import de.mm20.launcher2.plugin.here.api.HPosition
 import de.mm20.launcher2.plugin.here.api.HTransitDepartures
 import de.mm20.launcher2.plugin.here.api.HTransitStations
+import de.mm20.launcher2.plugin.here.api.HWeatherReport
 import de.mm20.launcher2.serialization.Json
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -89,6 +90,27 @@ class HereApiClient(
                 parameter("apiKey", apiKey)
                 parameter("id", id)
                 if (lang != null) parameter("lang", lang)
+            }
+        }.body()
+    }
+
+    suspend fun weatherReport(
+        location: HLocation,
+        products: Set<String>,
+        oneObservation: Boolean = false,
+        lang: String? = null,
+        units: String? = null,
+    ): HWeatherReport {
+        return client.get {
+            url {
+                host = "weather.hereapi.com"
+                path("v3", "report")
+                parameter("apiKey", apiKey)
+                parameter("location", location.toString())
+                parameter("products", products.joinToString(","))
+                parameter("oneObservation", oneObservation.toString())
+                if (lang != null) parameter("lang", lang)
+                if (units != null) parameter("units", units)
             }
         }.body()
     }

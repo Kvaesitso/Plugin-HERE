@@ -60,6 +60,22 @@
                 android:value="@string/plugin_places_description" />
         </provider>
 
+        <provider
+            android:name="de.mm20.launcher2.plugin.here.HereWeatherProvider"
+            android:authorities="de.mm20.launcher2.plugin.here.weather"
+            android:exported="true"
+            android:label="@string/plugin_weather_name"
+            android:icon="@drawable/ic_here">
+            <intent-filter>
+                <action android:name="de.mm20.launcher2.action.PLUGIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="de.mm20.launcher2.plugin.description"
+                android:value="@string/plugin_weather_description" />
+        </provider>
+
     </application>
 
 </manifest>

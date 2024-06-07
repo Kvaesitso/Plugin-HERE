@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 data class HLocation(
     val lat: Double?,
     val lng: Double?,
-)
+) {
+    override fun toString(): String {
+        return "$lat,$lng"
+    }
+}
