@@ -1,13 +1,12 @@
 package de.mm20.launcher2.plugin.here
 
 import android.graphics.Color
-import android.util.Log
 import de.mm20.launcher2.plugin.config.QueryPluginConfig
 import de.mm20.launcher2.plugin.config.StorageStrategy
 import de.mm20.launcher2.plugin.here.api.HDeparture
 import de.mm20.launcher2.plugin.here.api.HIn
 import de.mm20.launcher2.plugin.here.api.HTransitBoard
-import de.mm20.launcher2.sdk.base.GetParams
+import de.mm20.launcher2.sdk.base.RefreshParams
 import de.mm20.launcher2.sdk.base.SearchParams
 import de.mm20.launcher2.sdk.locations.Location
 import de.mm20.launcher2.sdk.locations.LocationProvider
@@ -19,7 +18,7 @@ import java.time.Duration
 
 class HereDeparturesProvider : LocationProvider(
     config = QueryPluginConfig(
-        storageStrategy = StorageStrategy.Deferred,
+        storageStrategy = StorageStrategy.StoreCopy,
     )
 ) {
     private lateinit var apiClient: HereApiClient
@@ -29,13 +28,12 @@ class HereDeparturesProvider : LocationProvider(
         return true
     }
 
-    override suspend fun get(id: String, params: GetParams): Location? {
+    override suspend fun refresh(item: Location, params: RefreshParams): Location? {
         return apiClient.transitDepartures(
-            ids = setOf(id),
+            ids = setOf(item.id),
         ).boards
             ?.firstOrNull()
             ?.toLocation()
-
     }
 
     override suspend fun search(query: LocationQuery, params: SearchParams): List<Location> {

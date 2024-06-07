@@ -5,7 +5,7 @@ import de.mm20.launcher2.plugin.config.StorageStrategy
 import de.mm20.launcher2.plugin.here.api.HAddress
 import de.mm20.launcher2.plugin.here.api.HDiscoverItem
 import de.mm20.launcher2.plugin.here.api.HPosition
-import de.mm20.launcher2.sdk.base.GetParams
+import de.mm20.launcher2.sdk.base.RefreshParams
 import de.mm20.launcher2.sdk.base.SearchParams
 import de.mm20.launcher2.sdk.locations.Location
 import de.mm20.launcher2.sdk.locations.LocationProvider
@@ -15,7 +15,7 @@ import de.mm20.launcher2.search.location.LocationIcon
 
 class HerePlacesProvider : LocationProvider(
     config = QueryPluginConfig(
-        storageStrategy = StorageStrategy.Deferred,
+        storageStrategy = StorageStrategy.StoreCopy,
     )
 ) {
     private lateinit var apiClient: HereApiClient
@@ -25,8 +25,8 @@ class HerePlacesProvider : LocationProvider(
         return true
     }
 
-    override suspend fun get(id: String, params: GetParams): Location? {
-        return apiClient.lookup(id, lang = params.lang).toLocation()
+    override suspend fun refresh(item: Location, params: RefreshParams): Location? {
+        return apiClient.lookup(item.id, lang = params.lang).toLocation()
     }
 
     override suspend fun search(query: LocationQuery, params: SearchParams): List<Location> {
