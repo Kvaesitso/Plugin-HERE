@@ -92,7 +92,10 @@ private fun HWeatherObservation.toForecast(createdAt: Long, locationName: String
         location = locationName ?: place?.address?.let {
             "${it.city}, ${it.countryCode}"
         } ?: return null,
-        condition = description ?: return null,
+        condition = precipitationDesc.takeIf { !it.isNullOrEmpty() }
+            ?: skyDesc.takeIf { !it.isNullOrEmpty() }
+            ?: temperatureDesc.takeIf { !it.isNullOrEmpty() }
+            ?: description ?: return null,
         icon = getIcon(iconId ?: return null),
         temperature = temperature?.C ?: return null,
         humidity = humidity?.toDoubleOrNull()?.toInt(),
@@ -119,7 +122,10 @@ private fun HWeatherForecast.toForecast(
         location = locationName ?: place.address?.let {
             "${it.city}, ${it.countryCode}"
         } ?: return null,
-        condition = description ?: return null,
+        condition = precipitationDesc.takeIf { !it.isNullOrEmpty() }
+            ?: skyDesc.takeIf { !it.isNullOrEmpty() }
+            ?: temperatureDesc.takeIf { !it.isNullOrEmpty() }
+            ?: description ?: return null,
         icon = getIcon(iconId ?: return null),
         temperature = temperature?.C ?: return null,
         humidity = humidity?.toDoubleOrNull()?.toInt(),
