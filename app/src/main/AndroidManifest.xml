@@ -49,7 +49,7 @@
             android:authorities="de.mm20.launcher2.plugin.here.places"
             android:exported="true"
             android:label="@string/plugin_places_name"
-            android:icon="@drawable/ic_here">
+            android:icon="@drawable/ic_here_badge">
             <intent-filter>
                 <action android:name="de.mm20.launcher2.action.PLUGIN" />
                 <category android:name="android.intent.category.DEFAULT" />
