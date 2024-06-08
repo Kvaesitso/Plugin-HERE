@@ -12,6 +12,7 @@ import de.mm20.launcher2.sdk.locations.LocationProvider
 import de.mm20.launcher2.sdk.locations.LocationQuery
 import de.mm20.launcher2.search.location.Address
 import de.mm20.launcher2.search.location.LocationIcon
+import kotlin.time.Duration.Companion.days
 
 class HerePlacesProvider : LocationProvider(
     config = QueryPluginConfig(
@@ -26,6 +27,9 @@ class HerePlacesProvider : LocationProvider(
     }
 
     override suspend fun refresh(item: Location, params: RefreshParams): Location? {
+        if ((System.currentTimeMillis() - params.lastUpdated) < 1.days.inWholeMilliseconds) {
+            return item
+        }
         return apiClient.lookup(item.id, lang = params.lang).toLocation()
     }
 

@@ -15,6 +15,8 @@ import de.mm20.launcher2.search.location.Departure
 import de.mm20.launcher2.search.location.LineType
 import de.mm20.launcher2.search.location.LocationIcon
 import java.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 class HereDeparturesProvider : LocationProvider(
     config = QueryPluginConfig(
@@ -29,6 +31,9 @@ class HereDeparturesProvider : LocationProvider(
     }
 
     override suspend fun refresh(item: Location, params: RefreshParams): Location? {
+        if ((System.currentTimeMillis() - params.lastUpdated) < 1.minutes.inWholeMilliseconds) {
+            return item
+        }
         return apiClient.transitDepartures(
             ids = setOf(item.id),
         ).boards
