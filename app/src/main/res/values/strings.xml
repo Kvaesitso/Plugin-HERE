@@ -8,4 +8,13 @@
     <string name="plugin_places_description">Search HERE for places in the local area</string>
     <string name="plugin_weather_name">HERE weather</string>
     <string name="plugin_weather_description">Weather data from HERE</string>
+    <string name="input_api_key">API key</string>
+    <string name="api_key_save_button">Save</string>
+    <string name="api_key_state_saved">API key has been updated successfully.</string>
+    <string name="api_key_state_invalid">The provided API key is not valid.</string>
+    <string name="api_key_state_error">An error occurred, please check your network connection.</string>
+    <string name="setup_step_n">Step %1$d</string>
+    <string name="instruction_register">Register at %1$s to get an API key:</string>
+    <string name="instruction_enter_key">Paste the API key below:</string>
+    <string name="plugin_state_setup_required">Add an API key to use this plugin.</string>
 </resources>

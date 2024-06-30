@@ -1,11 +1,13 @@
 package de.mm20.launcher2.plugin.here
 
+import android.content.Intent
 import android.graphics.Color
 import de.mm20.launcher2.plugin.config.QueryPluginConfig
 import de.mm20.launcher2.plugin.config.StorageStrategy
 import de.mm20.launcher2.plugin.here.api.HDeparture
 import de.mm20.launcher2.plugin.here.api.HIn
 import de.mm20.launcher2.plugin.here.api.HTransitBoard
+import de.mm20.launcher2.sdk.PluginState
 import de.mm20.launcher2.sdk.base.RefreshParams
 import de.mm20.launcher2.sdk.base.SearchParams
 import de.mm20.launcher2.sdk.locations.Location
@@ -14,6 +16,7 @@ import de.mm20.launcher2.sdk.locations.LocationQuery
 import de.mm20.launcher2.search.location.Departure
 import de.mm20.launcher2.search.location.LineType
 import de.mm20.launcher2.search.location.LocationIcon
+import kotlinx.coroutines.flow.first
 import java.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -26,7 +29,7 @@ class HereDeparturesProvider : LocationProvider(
     private lateinit var apiClient: HereApiClient
 
     override fun onCreate(): Boolean {
-        apiClient = HereApiClient(context!!.getString(R.string.api_key))
+        apiClient = HereApiClient(context!!)
         return true
     }
 
@@ -59,6 +62,15 @@ class HereDeparturesProvider : LocationProvider(
             ids = stationIds.toSet(),
         )
         return departures.boards?.mapNotNull { it.toLocation() } ?: emptyList()
+    }
+
+    override suspend fun getPluginState(): PluginState {
+        val context = context!!
+        apiClient.apiKey.first() ?: return PluginState.SetupRequired(
+            Intent(context, SettingsActivity::class.java),
+            context.getString(R.string.plugin_state_setup_required)
+        )
+        return PluginState.Ready()
     }
 }
 

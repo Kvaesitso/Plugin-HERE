@@ -1,10 +1,12 @@
 package de.mm20.launcher2.plugin.here
 
+import android.content.Intent
 import de.mm20.launcher2.plugin.config.WeatherPluginConfig
 import de.mm20.launcher2.plugin.here.api.HLocation
 import de.mm20.launcher2.plugin.here.api.HWeatherForecast
 import de.mm20.launcher2.plugin.here.api.HWeatherObservation
 import de.mm20.launcher2.plugin.here.api.HWeatherPlace
+import de.mm20.launcher2.sdk.PluginState
 import de.mm20.launcher2.sdk.weather.C
 import de.mm20.launcher2.sdk.weather.Forecast
 import de.mm20.launcher2.sdk.weather.WeatherLocation
@@ -12,6 +14,7 @@ import de.mm20.launcher2.sdk.weather.WeatherProvider
 import de.mm20.launcher2.sdk.weather.km_h
 import de.mm20.launcher2.sdk.weather.mm
 import de.mm20.launcher2.weather.WeatherIcon
+import kotlinx.coroutines.flow.first
 
 class HereWeatherProvider : WeatherProvider(
     WeatherPluginConfig()
@@ -19,7 +22,7 @@ class HereWeatherProvider : WeatherProvider(
     private lateinit var apiClient: HereApiClient
 
     override fun onCreate(): Boolean {
-        apiClient = HereApiClient(context!!.getString(R.string.api_key))
+        apiClient = HereApiClient(context!!)
         return true
     }
 
@@ -83,6 +86,15 @@ class HereWeatherProvider : WeatherProvider(
                 }
             }
         }
+    }
+
+    override suspend fun getPluginState(): PluginState {
+        val context = context!!
+        apiClient.apiKey.first() ?: return PluginState.SetupRequired(
+            Intent(context, SettingsActivity::class.java),
+            context.getString(R.string.plugin_state_setup_required)
+        )
+        return PluginState.Ready()
     }
 }
 

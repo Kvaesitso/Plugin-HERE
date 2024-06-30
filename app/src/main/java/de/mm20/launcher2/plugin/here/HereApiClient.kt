@@ -1,5 +1,8 @@
 package de.mm20.launcher2.plugin.here
 
+import android.content.Context
+import android.util.Log
+import de.mm20.launcher2.plugin.foursquare.dataStore
 import de.mm20.launcher2.plugin.here.api.HDiscover
 import de.mm20.launcher2.plugin.here.api.HDiscoverItem
 import de.mm20.launcher2.plugin.here.api.HLocation
@@ -16,12 +19,18 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 class HereApiClient(
-    private val apiKey: String,
+    private val context: Context,
 ) {
     private val client = HttpClient(OkHttp) {
         install(ContentNegotiation) {
@@ -37,8 +46,10 @@ class HereApiClient(
     suspend fun transitStations(
         `in`: HIn,
         name: String,
+        apiKey: String? = null,
     ): HTransitStations {
-        return client.get {
+        val apiKey = apiKey ?: this.apiKey.first() ?: throw IllegalArgumentException("No API key provided")
+        val response = client.get {
             url {
                 host = "transit.hereapi.com"
                 path("v8", "stations")
@@ -46,28 +57,44 @@ class HereApiClient(
                 parameter("in", `in`.toString())
                 parameter("name", name)
             }
-        }.body()
+        }
+        if (response.status == HttpStatusCode.Unauthorized) {
+            throw IllegalArgumentException("Unauthorized. Invalid API key?; body ${response.bodyAsText()}")
+        } else if (response.status != HttpStatusCode.OK) {
+            throw IOException("API error: status ${response.status.value}; body ${response.bodyAsText()}")
+        }
+        return response.body()
     }
 
     suspend fun transitDepartures(
         ids: Set<String>,
+        apiKey: String? = null,
     ): HTransitDepartures {
-        return client.get {
+        val apiKey = apiKey ?: this.apiKey.first() ?: throw IllegalArgumentException("No API key provided")
+        val response = client.get {
             url {
                 host = "transit.hereapi.com"
                 path("v8", "departures")
                 parameter("apiKey", apiKey)
                 parameter("ids", ids.joinToString(","))
             }
-        }.body()
+        }
+        if (response.status == HttpStatusCode.Unauthorized) {
+            throw IllegalArgumentException("Unauthorized. Invalid API key?; body ${response.bodyAsText()}")
+        } else if (response.status != HttpStatusCode.OK) {
+            throw IOException("API error: status ${response.status.value}; body ${response.bodyAsText()}")
+        }
+        return response.body()
     }
 
     suspend fun discover(
         at: HPosition,
         q: String,
         lang: String?,
+        apiKey: String? = null,
     ): HDiscover {
-        return client.get {
+        val apiKey = apiKey ?: this.apiKey.first() ?: throw IllegalArgumentException("No API key provided")
+        val response = client.get {
             url {
                 host = "discover.search.hereapi.com"
                 path("v1", "discover")
@@ -76,14 +103,22 @@ class HereApiClient(
                 parameter("q", q)
                 if (lang != null) parameter("lang", lang)
             }
-        }.body()
+        }
+        if (response.status == HttpStatusCode.Unauthorized) {
+            throw IllegalArgumentException("Unauthorized. Invalid API key?; body ${response.bodyAsText()}")
+        } else if (response.status != HttpStatusCode.OK) {
+            throw IOException("API error: status ${response.status.value}; body ${response.bodyAsText()}")
+        }
+        return response.body()
     }
 
     suspend fun lookup(
         id: String,
         lang: String?,
+        apiKey: String? = null,
     ): HDiscoverItem {
-        return client.get {
+        val apiKey = apiKey ?: this.apiKey.first() ?: throw IllegalArgumentException("No API key provided")
+        val response = client.get {
             url {
                 host = "lookup.search.hereapi.com"
                 path("v1", "lookup")
@@ -91,7 +126,13 @@ class HereApiClient(
                 parameter("id", id)
                 if (lang != null) parameter("lang", lang)
             }
-        }.body()
+        }
+        if (response.status == HttpStatusCode.Unauthorized) {
+            throw IllegalArgumentException("Unauthorized. Invalid API key?; body ${response.bodyAsText()}")
+        } else if (response.status != HttpStatusCode.OK) {
+            throw IOException("API error: status ${response.status.value}; body ${response.bodyAsText()}")
+        }
+        return response.body()
     }
 
     suspend fun weatherReport(
@@ -100,8 +141,10 @@ class HereApiClient(
         oneObservation: Boolean = false,
         lang: String? = null,
         units: String? = null,
+        apiKey: String? = null,
     ): HWeatherReport {
-        return client.get {
+        val apiKey = apiKey ?: this.apiKey.first() ?: throw IllegalArgumentException("No API key provided")
+        val response = client.get {
             url {
                 host = "weather.hereapi.com"
                 path("v3", "report")
@@ -112,7 +155,35 @@ class HereApiClient(
                 if (lang != null) parameter("lang", lang)
                 if (units != null) parameter("units", units)
             }
-        }.body()
+        }
+        if (response.status == HttpStatusCode.Unauthorized) {
+            throw IllegalArgumentException("Unauthorized. Invalid API key?; body ${response.bodyAsText()}")
+        } else if (response.status != HttpStatusCode.OK) {
+            throw IOException("API error: status ${response.status.value}; body ${response.bodyAsText()}")
+        }
+        return response.body()
     }
+
+    suspend fun setApiKey(apiKey: String) {
+        context.dataStore.updateData {
+            it.copy(apiKey = apiKey)
+        }
+    }
+
+    suspend fun testApiKey(apiKey: String): Boolean {
+        return try {
+            weatherReport(
+                HLocation(lat = 51.5, lng = 0.0),
+                products = setOf("observation"),
+                apiKey = apiKey
+            )
+            return true
+        } catch (e: IllegalArgumentException) {
+            Log.e("HereApiClient", "Invalid API key", e)
+            return false
+        }
+    }
+
+    val apiKey: Flow<String?> = context.dataStore.data.map { it.apiKey }
 
 }

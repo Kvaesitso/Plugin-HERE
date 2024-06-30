@@ -1,10 +1,12 @@
 package de.mm20.launcher2.plugin.here
 
+import android.content.Intent
 import de.mm20.launcher2.plugin.config.QueryPluginConfig
 import de.mm20.launcher2.plugin.config.StorageStrategy
 import de.mm20.launcher2.plugin.here.api.HAddress
 import de.mm20.launcher2.plugin.here.api.HDiscoverItem
 import de.mm20.launcher2.plugin.here.api.HPosition
+import de.mm20.launcher2.sdk.PluginState
 import de.mm20.launcher2.sdk.base.RefreshParams
 import de.mm20.launcher2.sdk.base.SearchParams
 import de.mm20.launcher2.sdk.locations.Location
@@ -12,6 +14,7 @@ import de.mm20.launcher2.sdk.locations.LocationProvider
 import de.mm20.launcher2.sdk.locations.LocationQuery
 import de.mm20.launcher2.search.location.Address
 import de.mm20.launcher2.search.location.LocationIcon
+import kotlinx.coroutines.flow.first
 import kotlin.time.Duration.Companion.days
 
 class HerePlacesProvider : LocationProvider(
@@ -22,7 +25,7 @@ class HerePlacesProvider : LocationProvider(
     private lateinit var apiClient: HereApiClient
 
     override fun onCreate(): Boolean {
-        apiClient = HereApiClient(context!!.getString(R.string.api_key))
+        apiClient = HereApiClient(context!!)
         return true
     }
 
@@ -43,6 +46,15 @@ class HerePlacesProvider : LocationProvider(
             q = query.query,
             lang = params.lang,
         ).items?.mapNotNull { it.toLocation() } ?: emptyList()
+    }
+
+    override suspend fun getPluginState(): PluginState {
+        val context = context!!
+        apiClient.apiKey.first() ?: return PluginState.SetupRequired(
+            Intent(context, SettingsActivity::class.java),
+            context.getString(R.string.plugin_state_setup_required)
+        )
+        return PluginState.Ready()
     }
 }
 
