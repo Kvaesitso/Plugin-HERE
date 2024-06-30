@@ -310,3 +310,4 @@ fabric.properties
 .kotlin
 
 app/src/main/res/values/config.xml
+app/release
